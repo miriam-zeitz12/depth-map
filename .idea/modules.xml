@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DepthMap.iml" filepath="$PROJECT_DIR$/DepthMap.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/depth-map.iml" filepath="$PROJECT_DIR$/depth-map.iml" />
     </modules>
   </component>
 </project>

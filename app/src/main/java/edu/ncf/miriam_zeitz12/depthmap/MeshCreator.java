@@ -15,6 +15,11 @@ import java.util.List;
  * Created by Vinushka on 5/4/2015.
  */
 public class MeshCreator {
+
+    /**
+     * Offset used to generate the "base" of the object.
+     */
+    private static final double OFFSET  = 0.05;
     /**
      * Creates the 3D mesh from the depth map at inFilePath, and writes an .OBJ
      * file at outFilePath.
@@ -69,7 +74,7 @@ public class MeshCreator {
         //Commented out since Miriam does this in ObjWriter!
 //        for (int x = 0; x < width; x++) {
 //            for (int y = 0; y < height; y++) {
-//                Point3D newPoint = new Point3D(x,y,minZ-0.05,counter);
+//                Point3D newPoint = new Point3D(x,y,minZ-OFFSET,counter);
 //                returnPoints.add(newPoint);
 //                counter++;
 //            }

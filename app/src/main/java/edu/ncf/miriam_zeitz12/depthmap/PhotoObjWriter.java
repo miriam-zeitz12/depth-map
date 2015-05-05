@@ -2,7 +2,7 @@ package edu.ncf.miriam_zeitz12.depthmap;
 
 import android.content.Context;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by miriamzeitz on 5/4/15.
@@ -31,7 +31,7 @@ public class PhotoObjWriter extends ObjWriter {
      */
 
 
-    public void writePhotoObj(int x, int y, ArrayList<Point3D> vertices){
+    public void writePhotoObj(int x, int y, List<Point3D> vertices){
         beginWrite();
         for (Point3D vertex: vertices){
             addVertex(vertex);

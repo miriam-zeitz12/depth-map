@@ -43,4 +43,12 @@ public class MainActivity extends ActionBarActivity {
         Intent intent = new Intent(this, HelpScreenActivity.class);
         startActivity(intent);
     }
+
+    public void getPhotoFromFiles(View view) {
+
+    }
+
+    public void getPhotoFromCamera(View view) {
+        
+    }
 }

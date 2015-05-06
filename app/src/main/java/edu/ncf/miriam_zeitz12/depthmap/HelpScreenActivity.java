@@ -8,19 +8,18 @@ import android.view.MenuItem;
 import android.view.View;
 
 
-public class MainActivity extends ActionBarActivity {
+public class HelpScreenActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_help_screen);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_help_screen, menu);
         return true;
     }
 
@@ -39,8 +38,13 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void getHelp(View view) {
-        Intent intent = new Intent(this, HelpScreenActivity.class);
+    public void goBack(View view) {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    public void moreInfo(View view) {
+        Intent intent = new Intent(this, MoreInfoActivity.class);
         startActivity(intent);
     }
 }

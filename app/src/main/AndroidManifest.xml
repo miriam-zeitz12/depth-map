@@ -16,6 +16,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".HelpScreenActivity"
+            android:label="@string/title_activity_help_screen" >
+        </activity>
+        <activity
+            android:name=".MoreInfoActivity"
+            android:label="@string/title_activity_more_info" >
+        </activity>
     </application>
 
 </manifest>

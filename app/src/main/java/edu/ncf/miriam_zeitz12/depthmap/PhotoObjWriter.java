@@ -1,6 +1,7 @@
 package edu.ncf.miriam_zeitz12.depthmap;
 
 import android.content.Context;
+import android.graphics.Point;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
 public class PhotoObjWriter extends ObjWriter {
 
 
+    private double baseDepth = 5.0;
 
 
     public PhotoObjWriter(Context context, String file){
@@ -19,6 +21,10 @@ public class PhotoObjWriter extends ObjWriter {
         //so its just what we decide is best
         setHeader("3D Photo Model");
 
+    }
+
+    public void setBaseDepth(double depth){
+        baseDepth = depth;
     }
 
     /**
@@ -34,7 +40,8 @@ public class PhotoObjWriter extends ObjWriter {
     public void writePhotoObj(int x, int y, List<Point3D> vertices){
         beginWrite();
         for (Point3D vertex: vertices){
-            addVertex(vertex);
+            Point3D vertexPlusBase = new Point3D(vertex.getPointID(), vertex.getX(), vertex.getY(), vertex.getZ() + baseDepth);
+            addVertex(vertexPlusBase);
         }
         addBottomVertices(vertices.get(0), vertices.get(x -1),
                 vertices.get(x*y -1), vertices.get(x *(y-1)));

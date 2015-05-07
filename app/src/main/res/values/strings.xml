@@ -9,8 +9,14 @@
     <string name="go_back_button">Go Back</string>
     <string name="more_info_button">More Info</string>
 
+    <string name="enter_email">Enter Email</string>
+    <string name="explain_email">You now have a 3D-printable file! \n
+    Enter your email so it can be sent to you! \n</string>
+    <string name="send_email_button">Send</string>
+
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_help_screen">Help Screen</string>
     <string name="title_activity_more_info">More Info</string>
+    <string name="title_activity_email_file">Email File</string>
 </resources>

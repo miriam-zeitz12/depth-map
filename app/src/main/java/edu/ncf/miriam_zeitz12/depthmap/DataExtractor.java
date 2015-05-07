@@ -139,11 +139,14 @@ public class DataExtractor
         int nearEnd = indexOf(fileData, CLOSE_DEPTH_RANGE, nearStart);
         int farEnd = indexOf(fileData, CLOSE_DEPTH_RANGE, farStart);
         //now get near and far for it
-        Double nearVal = Double.parseDouble(new String(Arrays.copyOfRange(fileData, nearStart, nearEnd)));
-        Double farVal = Double.parseDouble(new String(Arrays.copyOfRange(fileData, farStart, farEnd)));
-        near = nearVal;
-        far = farVal;
-
+        if (nearStart >= 0 && farStart >= 0) {
+            Double nearVal = Double.parseDouble(new String(Arrays.copyOfRange(fileData, nearStart, nearEnd)));
+            Double farVal = Double.parseDouble(new String(Arrays.copyOfRange(fileData, farStart, farEnd)));
+            near = nearVal;
+            far = farVal;
+        } else {
+            return null;
+        }
         int openIdx = indexOf(fileData, OPEN_ARR, 0);
 
         while(openIdx >= 0)

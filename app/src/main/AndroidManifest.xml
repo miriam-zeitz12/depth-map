@@ -28,6 +28,10 @@
             android:name=".EmailFileActivity"
             android:label="@string/title_activity_email_file" >
         </activity>
+        <activity
+            android:name=".MeshActivity"
+            android:label="@string/title_activity_mesh" >
+        </activity>
     </application>
 
 </manifest>

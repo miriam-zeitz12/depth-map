@@ -32,6 +32,9 @@ public class MeshCreator {
         //first get the data
         DataExtractor extract = new DataExtractor(new FileInputStream(inFilePath));
         String data = extract.getDepthData();
+        if (data == null) {
+            throw new IllegalArgumentException("Did not provide an image with depth map information.");
+        }
         double near = extract.getNear();
         double far = extract.getFar();
         //now make a Bitmap out of it, read stream so we don't have to

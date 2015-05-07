@@ -24,6 +24,10 @@
             android:name=".MoreInfoActivity"
             android:label="@string/title_activity_more_info" >
         </activity>
+        <activity
+            android:name=".MeshActivity"
+            android:label="@string/title_activity_mesh" >
+        </activity>
     </application>
 
 </manifest>

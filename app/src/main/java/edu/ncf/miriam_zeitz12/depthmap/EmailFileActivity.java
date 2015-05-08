@@ -15,9 +15,12 @@ import org.apache.http.protocol.HTTP;
 
 public class EmailFileActivity extends ActionBarActivity {
 
+    private Uri filePath;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
+        filePath = Uri.parse(intent.getStringExtra(MeshActivity.EMAIL_IMAGE_URI));
         setContentView(R.layout.activity_email_file);
     }
 
@@ -77,7 +80,7 @@ public class EmailFileActivity extends ActionBarActivity {
             emailIntent.putExtra(Intent.EXTRA_TEXT, "Hello! \n\n A request has been made to send a "
             + "3D-printable file to this E-Mail address from an application on a mobile phone.  "
             + "Attached is the file requested. Enjoy!");
-            emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://createdFiles/file"));
+            emailIntent.putExtra(Intent.EXTRA_STREAM, filePath);
 
             startActivity(emailIntent);
         } else {

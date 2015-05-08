@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -40,7 +41,7 @@ public class MeshActivity extends ActionBarActivity {
                 File outFile = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOCUMENTS), fullFileName);
                 String outPath = outFile.getAbsolutePath();
-                MeshCreator creator = new MeshCreator(imageUri.toString());
+                MeshCreator creator = new MeshCreator(imageUri,this);
                 List<Point3D> pointCloud = creator.getPoints();
                 PhotoObjWriter writer = new PhotoObjWriter(this,outPath);
                 writer.writePhotoObj(creator.getWidth(), creator.getHeight(), pointCloud);
@@ -53,6 +54,7 @@ public class MeshActivity extends ActionBarActivity {
             }
         } catch (IOException e) {
             //if we can't, then display this error message
+            Log.wtf("arf", "no file?", e);
             displayBadFileDialog();
         }
     }

@@ -1,7 +1,12 @@
 package edu.ncf.miriam_zeitz12.depthmap;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import com.adobe.xmp.impl.Base64;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -29,22 +34,26 @@ public class MeshCreator {
     /**
      * Creates the 3D mesh from the depth map at inFilePath, and writes an .OBJ
      * file at outFilePath.
-     * @param inFilePath - the path to the depth map.
+     * @param inFilePath - the path to the depth map as a Uri
      * @throws IOException - if there's issues reading the depth map
      */
-    public MeshCreator(String inFilePath) throws IOException{
+    public MeshCreator(Uri inFilePath, Context context) throws IOException{
         //first get the data
-        DataExtractor extract = new DataExtractor(new FileInputStream(inFilePath));
+        ContentResolver resolver = context.getContentResolver();
+        DataExtractor extract = new DataExtractor(resolver.openInputStream(inFilePath));
         String data = extract.getDepthData();
         if (data == null) {
             throw new IllegalArgumentException("Did not provide an image with depth map information.");
         }
         near = extract.getNear();
         far = extract.getFar();
+        Log.d("Found data",Double.toString(near)+" "+Double.toString(far));
         //now make a Bitmap out of it, read stream so we don't have to
         //care about indexing directly
-        InputStream imageStream = new ByteArrayInputStream(data.getBytes());
-        storeImg = BitmapFactory.decodeStream(imageStream);
+        Log.d("Is data null?",Boolean.toString(data == null));
+        byte[] imgData = Base64.decode(data.getBytes());
+        storeImg = BitmapFactory.decodeByteArray(imgData,0,imgData.length);
+        Log.d("Image is null:", Boolean.toString(storeImg == null));
     }
 
     /**

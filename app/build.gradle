@@ -4,11 +4,11 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 21
     buildToolsVersion "21.1.2"
     defaultConfig {
         applicationId "edu.ncf.miriam_zeitz12.depthmap"
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -26,4 +26,5 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.1.1'
+    compile files('libs/xmpcore-5.1.2.jar')
 }

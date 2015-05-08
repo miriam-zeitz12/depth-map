@@ -39,7 +39,7 @@ public class DataExtractor
     /**
      * Holds the depth data.
      */
-    String depthData;
+    byte[] depthData;
 
     /**
      * Creates a DataExtractor. Creating the object,
@@ -72,11 +72,11 @@ public class DataExtractor
      * Actually gets the depth data.
      * @return - the depth data as a Base64-encoded String.
      */
-    public String getDepthData(){
+    public byte[] getDepthData(){
         return depthData;
     }
 
-    private static void copy(InputStream in, OutputStream out, int bufferSize) throws IOException
+    public static void copy(InputStream in, OutputStream out, int bufferSize) throws IOException
     {
         byte[] buf = new byte[bufferSize];
         int bytesRead = in.read(buf);
@@ -124,7 +124,7 @@ public class DataExtractor
         return buf.toString();
     }
 
-    private String findDepthData() throws IOException
+    private byte[] findDepthData() throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -160,7 +160,7 @@ public class DataExtractor
             String test = "";
             if (dataStart != -1) {
                 test = new String(Arrays.copyOfRange(segArr, dataStart + 13, dataEnd));
-                return fixString(test);
+                return fixString(test).getBytes();
             }
             openIdx = indexOf(fileData, OPEN_ARR, closeIdx + 1);
         }
@@ -173,10 +173,10 @@ public class DataExtractor
         DataExtractor extract = new DataExtractor(new FileInputStream(new File("IMG_20150116_143419.jpg")));
         System.out.println(extract.getNear());
         System.out.println(extract.getFar());
-        String data = extract.getDepthData();
+        byte[] data = extract.getDepthData();
         if(data != null)
         {
-            byte[] imgData = Base64.decode(data.getBytes(),Base64.DEFAULT);
+            byte[] imgData = Base64.decode(data,Base64.DEFAULT);
             ByteArrayInputStream in = new ByteArrayInputStream(imgData);
             FileOutputStream out = new FileOutputStream(new File("out.png"));
             copy(in, out,1024);

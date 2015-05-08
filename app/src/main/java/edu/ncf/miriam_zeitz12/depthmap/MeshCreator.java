@@ -6,10 +6,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import com.adobe.xmp.impl.Base64;
+
+import android.os.Environment;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -41,7 +45,7 @@ public class MeshCreator {
         //first get the data
         ContentResolver resolver = context.getContentResolver();
         DataExtractor extract = new DataExtractor(resolver.openInputStream(inFilePath));
-        String data = extract.getDepthData();
+        byte[] data = extract.getDepthData();
         if (data == null) {
             throw new IllegalArgumentException("Did not provide an image with depth map information.");
         }
@@ -51,8 +55,18 @@ public class MeshCreator {
         //now make a Bitmap out of it, read stream so we don't have to
         //care about indexing directly
         Log.d("Is data null?",Boolean.toString(data == null));
-        byte[] imgData = Base64.decode(data.getBytes());
-        storeImg = BitmapFactory.decodeByteArray(imgData,0,imgData.length);
+        byte[] imgData = Base64.decode(data);
+        String fullFileName = "OUT-TEMP.PNG";
+        File outFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS), fullFileName);
+        String outPath = outFile.getAbsolutePath();
+        ByteArrayInputStream is = new ByteArrayInputStream(imgData);
+        File output = new File(outPath);
+        Log.d("File exists:",Boolean.toString(output.canRead()));
+        FileOutputStream out = new FileOutputStream(output);
+        DataExtractor.copy(is, out,1024);
+        out.close();
+        storeImg = BitmapFactory.decodeFile(output.getAbsolutePath());
         Log.d("Image is null:", Boolean.toString(storeImg == null));
     }
 

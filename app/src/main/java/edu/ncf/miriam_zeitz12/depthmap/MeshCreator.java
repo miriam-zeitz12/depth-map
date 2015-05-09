@@ -8,14 +8,19 @@ import android.net.Uri;
 import com.adobe.xmp.impl.Base64;
 
 import android.os.Environment;
+//import android.util.Base64;
 import android.util.Log;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,21 +57,28 @@ public class MeshCreator {
         near = extract.getNear();
         far = extract.getFar();
         Log.d("Found data",Double.toString(near)+" "+Double.toString(far));
+        Log.d("Base64:",new String(data));
         //now make a Bitmap out of it, read stream so we don't have to
         //care about indexing directly
-        Log.d("Is data null?",Boolean.toString(data == null));
-        byte[] imgData = Base64.decode(data);
-        String fullFileName = "OUT-TEMP.PNG";
+        Log.d("Length of data:",Integer.toString(data.length));
+        Log.d("First byte in data:",Byte.toString(data[0]));
+        Log.d("Last byte in data:",Byte.toString(data[data.length-1]));
+        String fullFileName = "out.png";
+        String textFileName = "OUT-TEMP.TXT";
         File outFile = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOCUMENTS), fullFileName);
         String outPath = outFile.getAbsolutePath();
-        ByteArrayInputStream is = new ByteArrayInputStream(imgData);
-        File output = new File(outPath);
-        Log.d("File exists:",Boolean.toString(output.canRead()));
-        FileOutputStream out = new FileOutputStream(output);
-        DataExtractor.copy(is, out,1024);
-        out.close();
-        storeImg = BitmapFactory.decodeFile(output.getAbsolutePath());
+        byte[] imgData = Base64.decode(data);
+        //ByteArrayInputStream in = new ByteArrayInputStream(imgData);
+        //FileOutputStream out = new FileOutputStream(outPath);
+        //IOUtils.copy(in,out);
+        //FlushedInputStream is = new FlushedInputStream(new ByteArrayInputStream(imgData));
+        //FileInputStream newFile = new FileInputStream(outFile);
+//        DataExtractor.copy(is, out,1024);
+//        out.close();
+        FileInputStream in = new FileInputStream(outPath);
+        //in.reset();
+        storeImg = BitmapFactory.decodeStream(in);
         Log.d("Image is null:", Boolean.toString(storeImg == null));
     }
 

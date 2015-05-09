@@ -5,6 +5,7 @@ import android.content.Context;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 /**
@@ -16,9 +17,10 @@ public class ObjWriter {
     protected String fileName;
     private final Context baseContext;
     protected int vertexCount = 0;
-    protected PrintWriter writer;
+    protected OutputStreamWriter writer;
     protected final String commentTag = "# ";
     protected String fileHeader = "Default header";
+    private String toWrite;
 
     public ObjWriter(Context context, String file){
         fileName = file;
@@ -42,8 +44,8 @@ public class ObjWriter {
     public void beginWrite(){
 
         try {
-            outputStream = baseContext.openFileOutput(fileName, Context.MODE_PRIVATE);
-            writer = new PrintWriter(outputStream);
+            outputStream = new FileOutputStream(fileName);
+            writer = new OutputStreamWriter(outputStream);
             writeHeader();
 
         }
@@ -56,6 +58,7 @@ public class ObjWriter {
     //not sure of the best way to ensure that this method is called
     public void endWrite(){
         try {
+            writer.write(toWrite);
             writer.flush();
             writer.close();
             outputStream.flush();
@@ -67,24 +70,23 @@ public class ObjWriter {
     }
 
     public void writeHeader(){
-        writer.print(commentTag);
-        writer.println(fileHeader);
+        toWrite += commentTag;
+        toWrite += fileHeader + "\n";
     }
 
     public void addVertex(Point3D vertex){
-        String vertexString = "v " + vertex.getX() + " " + vertex.getY() + " " + vertex.getZ();
-        writer.println(vertexString);
+        String vertexString = "v " + vertex.getX() + " " + vertex.getY() + " " + vertex.getZ() + "\n";
+        toWrite += vertexString;
         vertexCount++;
     }
 
     public void addFace(int vertexA, int vertexB, int vertexC, int vertexD){
-        writer.println("f " + vertexA + " " + vertexB + " " + vertexC + " " + vertexD);
+        toWrite += "f " + vertexA + " " + vertexB + " " + vertexC + " " + vertexD + "\n";
     }
 
 
     public void addComment(String comment){
-        writer.print(commentTag);
-        writer.println(comment);
+        toWrite += commentTag + comment + "\n";
     }
 
 

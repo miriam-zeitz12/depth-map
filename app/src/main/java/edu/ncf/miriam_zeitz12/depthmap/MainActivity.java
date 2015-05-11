@@ -52,6 +52,7 @@ public class MainActivity extends ActionBarActivity {
     public void getPhotoFromFiles(View view) {
         Intent intent = new Intent(Intent.ACTION_PICK,
                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
         startActivityForResult(intent, ACTIVITY_SELECT_IMAGE);
     }
 

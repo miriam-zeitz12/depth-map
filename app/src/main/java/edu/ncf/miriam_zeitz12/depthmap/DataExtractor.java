@@ -3,8 +3,10 @@ package edu.ncf.miriam_zeitz12.depthmap;
 import java.io.*;
 import java.util.*;
 
-import android.util.Base64;
-//import com.adobe.xmp.impl.Base64; //USED FOR TESTING IN JVM
+//import android.util.Base64;
+import com.adobe.xmp.impl.Base64; //USED FOR TESTING IN JVM
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Extracts data from depth maps. Ideally this would just be static methods,
@@ -16,14 +18,14 @@ import android.util.Base64;
  */
 public class DataExtractor
 {
-    // An encoding should really be specified here, and for other uses of getBytes!
-    private static final byte[] OPEN_ARR = "<x:xmpmeta".getBytes();
-    private static final byte[] CLOSE_ARR = "</x:xmpmeta>".getBytes();
-    private static final byte[] OPEN_DATA = "GDepth:Data=\"".getBytes();
-    private static final byte[] CLOSE_DATA = "\"/>".getBytes();
-    private static final byte[] OPEN_NEAR = "GDepth:Near=\"".getBytes();
-    private static final byte[] OPEN_FAR = "GDepth:Far=\"".getBytes();
-    private static final byte[] CLOSE_DEPTH_RANGE = "\"".getBytes();
+    //We specify UTF-8 in the constructor.
+    private static byte[] OPEN_ARR;
+    private static byte[] CLOSE_ARR;
+    private static byte[] OPEN_DATA;
+    private static byte[] CLOSE_DATA;
+    private static byte[] OPEN_NEAR;
+    private static byte[] OPEN_FAR;
+    private static byte[] CLOSE_DEPTH_RANGE;
     /**
      * "Near" value, the nearest point in the depth map.
      */
@@ -33,23 +35,31 @@ public class DataExtractor
      */
     private double far;
     /**
-     * The file we will extract the depth map from.
+     * The input data.
      */
-    private InputStream inputFile;
+    private byte[] inputData;
     /**
      * Holds the depth data.
      */
-    String depthData;
+    byte[] depthData;
 
     /**
      * Creates a DataExtractor. Creating the object,
      * also extracts the data.
-     * @param in - InputStream of the depth map.
+     * @param in - File of the depth map.
      * @throws IOException - If there's issues reading the file
      */
     public DataExtractor(InputStream in) throws IOException {
-        inputFile = in;
+        OPEN_ARR = "<x:xmpmeta".getBytes("UTF-8");
+        CLOSE_ARR = "</x:xmpmeta>".getBytes("UTF-8");
+        OPEN_DATA = "GDepth:Data=\"".getBytes("UTF-8");
+        CLOSE_DATA = "\"/>".getBytes("UTF-8");
+        OPEN_NEAR = "GDepth:Near=\"".getBytes("UTF-8");
+        OPEN_FAR = "GDepth:Far=\"".getBytes("UTF-8");
+        CLOSE_DEPTH_RANGE = "\"".getBytes("UTF-8");
+        inputData = IOUtils.toByteArray(in);
         depthData = findDepthData();
+
     }
 
     /**
@@ -72,11 +82,11 @@ public class DataExtractor
      * Actually gets the depth data.
      * @return - the depth data as a Base64-encoded String.
      */
-    public String getDepthData(){
+    public byte[] getDepthData(){
         return depthData;
     }
 
-    private static void copy(InputStream in, OutputStream out, int bufferSize) throws IOException
+    public static void copy(InputStream in, OutputStream out, int bufferSize) throws IOException
     {
         byte[] buf = new byte[bufferSize];
         int bytesRead = in.read(buf);
@@ -124,45 +134,38 @@ public class DataExtractor
         return buf.toString();
     }
 
-    private String findDepthData() throws IOException
+    private byte[] findDepthData() throws IOException
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        copy(inputFile, out,1024);
-
-
-        byte[] fileData = out.toByteArray();
-
         //get the Near and Far data first, since there's only one of them in the file
-        int nearStart = indexOf(fileData, OPEN_NEAR, 0) + OPEN_NEAR.length;
-        int farStart = indexOf(fileData, OPEN_FAR, 0) + OPEN_FAR.length;
-        int nearEnd = indexOf(fileData, CLOSE_DEPTH_RANGE, nearStart);
-        int farEnd = indexOf(fileData, CLOSE_DEPTH_RANGE, farStart);
+        int nearStart = indexOf(inputData, OPEN_NEAR, 0) + OPEN_NEAR.length;
+        int farStart = indexOf(inputData, OPEN_FAR, 0) + OPEN_FAR.length;
+        int nearEnd = indexOf(inputData, CLOSE_DEPTH_RANGE, nearStart);
+        int farEnd = indexOf(inputData, CLOSE_DEPTH_RANGE, farStart);
         //now get near and far for it
         if (nearStart >= 0 && farStart >= 0) {
-            Double nearVal = Double.parseDouble(new String(Arrays.copyOfRange(fileData, nearStart, nearEnd)));
-            Double farVal = Double.parseDouble(new String(Arrays.copyOfRange(fileData, farStart, farEnd)));
+            Double nearVal = Double.parseDouble(new String(Arrays.copyOfRange(inputData, nearStart, nearEnd)));
+            Double farVal = Double.parseDouble(new String(Arrays.copyOfRange(inputData, farStart, farEnd)));
             near = nearVal;
             far = farVal;
         } else {
             return null;
         }
-        int openIdx = indexOf(fileData, OPEN_ARR, 0);
+        int openIdx = indexOf(inputData, OPEN_ARR, 0);
 
         while(openIdx >= 0)
         {
-            int closeIdx = indexOf(fileData, CLOSE_ARR, openIdx + 1) + CLOSE_ARR.length;
+            int closeIdx = indexOf(inputData, CLOSE_ARR, openIdx + 1) + CLOSE_ARR.length;
 
-            byte[] segArr = Arrays.copyOfRange(fileData, openIdx, closeIdx);
+            byte[] segArr = Arrays.copyOfRange(inputData, openIdx, closeIdx);
             //instead of relying on the slow XMP parser, parse the bytes ourselves.
             int dataStart = indexOf(segArr,OPEN_DATA,0);
             int dataEnd = indexOf(segArr,CLOSE_DATA,dataStart+1);
             String test = "";
             if (dataStart != -1) {
                 test = new String(Arrays.copyOfRange(segArr, dataStart + 13, dataEnd));
-                return fixString(test);
+                return fixString(test).getBytes("UTF-8");
             }
-            openIdx = indexOf(fileData, OPEN_ARR, closeIdx + 1);
+            openIdx = indexOf(inputData, OPEN_ARR, closeIdx + 1);
         }
 
         return null;
@@ -170,13 +173,21 @@ public class DataExtractor
 
     public static void main(String[] args) throws Exception
     {
-        DataExtractor extract = new DataExtractor(new FileInputStream(new File("IMG_20150116_143419.jpg")));
+        DataExtractor extract = new DataExtractor(new FileInputStream(new File("IMG_20150213_135742.jpg")));
         System.out.println(extract.getNear());
         System.out.println(extract.getFar());
-        String data = extract.getDepthData();
+        byte[] data = extract.getDepthData();
+        System.out.println(data.length);
         if(data != null)
         {
-            byte[] imgData = Base64.decode(data.getBytes(),Base64.DEFAULT);
+            System.setProperty("file.encoding","UTF-8");
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File("out-java.txt")));
+            writer.write( new String(data));
+            writer.close();
+            System.out.println("First: " + data[0]+ " Second:  " + data[1]);
+            System.out.println("length-1: " + data[data.length-2] + " End: " + data[data.length-1]);
+            byte[] imgData = Base64.decode(data);
+
             ByteArrayInputStream in = new ByteArrayInputStream(imgData);
             FileOutputStream out = new FileOutputStream(new File("out.png"));
             copy(in, out,1024);

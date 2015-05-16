@@ -163,7 +163,7 @@ public class DataExtractor
             String test = "";
             if (dataStart != -1) {
                 test = new String(Arrays.copyOfRange(segArr, dataStart + 13, dataEnd));
-                return fixString(test).getBytes("UTF-8");
+                return test.getBytes("UTF-8");
             }
             openIdx = indexOf(inputData, OPEN_ARR, closeIdx + 1);
         }

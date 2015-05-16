@@ -8,7 +8,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,23 +18,24 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.UUID;
 
 
@@ -41,7 +44,7 @@ public class MeshActivity extends ActionBarActivity {
     private Uri imageUri;
     private static final String baseObjName = "_3d_model.obj";
     public static final String EMAIL_IMAGE_URI = "com.example.miriamzeitz.IMAGE_PROCESSED";
-    public static final String REQUEST_PATH = "162.243.209.132:9999/create";
+    public static final String REQUEST_PATH = "http://162.243.209.132:9999/create";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,53 +57,50 @@ public class MeshActivity extends ActionBarActivity {
             //first check if we can write the OBJ
             if (isExternalStorageWritable()) {
                 //we take a random UUID to generate the file name we need
-                String fullFileName  = UUID.randomUUID().toString() + baseObjName;
-                File outFile = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOCUMENTS), fullFileName);
-                String fullPath = outFile.getAbsolutePath();
+
                 ContentResolver resolver = context.getContentResolver();
                 DataExtractor extractor = new DataExtractor((resolver.openInputStream(imageUri)));
                 byte[] data = extractor.getDepthData();
                 if (data == null) {
                     displayBadFileDialog();
                 }
-                double near = extractor.getNear();
-                double far = extractor.getFar();
-                Log.d("Found data",Double.toString(near)+" "+Double.toString(far));
-                Log.d("Length of data:",Integer.toString(data.length));
-                Log.d("First byte in data:",Byte.toString(data[0]));
-                Log.d("Last byte in data:",Byte.toString(data[data.length-1]));
-                //create HttpClient
-                DefaultHttpClient httpClient = new DefaultHttpClient();
+                String near = Double.toString(extractor.getNear());
+                String far = Double.toString(extractor.getFar());
+                String d = new String(data);
+                new HttpTest().execute(new String[]{near,far,d});
+                String fullFileName  = UUID.randomUUID().toString() + baseObjName;
+                File outFile = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOCUMENTS), fullFileName);
+                String fullPath = outFile.getAbsolutePath();
+                //open connection using java.net because apache sucks
+                //String body = "{\"near\":"+near+",\"far\":"+far+",\"imageData\":\""+new String(data,"UTF-8")+"\"}";
+//                HttpClient httpClient = new DefaultHttpClient();
+//                httpPost.setEntity(new ByteArrayEntity(body.getBytes("UTF-8")));
+//                HttpResponse response = httpClient.execute(httpPost);
+//                InputStream reader = response.getEntity().getContent();
 
-                //make a POST request object to our path
-                HttpPost httpPost = new HttpPost(REQUEST_PATH);
+                //make JSON using a JSONObject
 
-                //make a Map for JSON to work
-                Map<String, String> jsonSource = new HashMap<>();
+//                JSONObject jsonHolder = new JSONObject();
+//                jsonHolder.put("near",near);
+//                jsonHolder.put("far",far);
+//                jsonHolder.put("imageData",new String(data));
+//                Log.d("Starting POST","JSON Data is ready.");
 
-                JSONObject jsonHolder = new JSONObject();
-                jsonHolder.put("near",near);
-                jsonHolder.put("far",far);
-                jsonHolder.put("imageData",new String(data));
-                Log.d("Starting POST","JSON Data is ready.");
-
-                //pass this to a StringEntity, because abstractions
-                StringEntity stringEntity = new StringEntity(jsonHolder.toString());
-
-                httpPost.setEntity(stringEntity);
-
-                //make sure we get the right headers so the server knows what to do with it
-                httpPost.setHeader("Accept","application/json");
-                httpPost.setHeader("Content-type","application/json");
-
-                //and now execute it
-                ResponseHandler<String> responseHandler = new BasicResponseHandler();
-                String response = httpClient.execute(httpPost,responseHandler);
-                //this is the header so now let's write to the file...
-                PrintWriter outputStream = new PrintWriter(new FileOutputStream(outFile));
-                outputStream.write(response);
-                outputStream.close();
+//                BufferedOutputStream writer = new BufferedOutputStream(conn.getOutputStream(),1024);
+//                //can just write the raw string
+//                byte[] toWrite = body.getBytes("UTF-8");
+//                Log.d("Status code",Integer.toString(conn.getResponseCode()));
+//                //IOUtils.copy(new ByteArrayInputStream(toWrite), writer);
+//                writer.write(toWrite,0,toWrite.length);
+//                writer.flush();
+//                InputStream reader = new BufferedInputStream(conn.getInputStream());
+//                FileOutputStream testFileOut = new FileOutputStream(outFile);
+//                byte[] buf = new byte[1024];
+//                for (int nChunk = reader.read(buf); nChunk != -1; nChunk = reader.read(buf)) {
+//                    testFileOut.write(buf,0,nChunk);
+//                }
+//                testFileOut.close();
 
                 //and now email this thing
                 Intent emailIntent = new Intent(this,EmailFileActivity.class);
@@ -111,11 +111,86 @@ public class MeshActivity extends ActionBarActivity {
             }
         } catch (IOException e) {
             //if we can't, then display this error message
-            Log.wtf("arf", "no file?", e);
+            e.printStackTrace();
+            //Log.wtf("arf", "no file?", e.printStackTrace());
             displayBadFileDialog();
-        } catch (JSONException f) {
-            Log.wtf("No JSON?","JSONException thrown",f);
-            displayBadJSONDialog();
+        }
+    }
+
+    public class HttpTest extends AsyncTask<String, HttpResponse, HttpResponse>
+    {
+
+        @Override
+        protected HttpResponse doInBackground(String... params)
+        {
+            BufferedReader inBuffer = null;
+            HttpResponse response = null;
+            try {
+                String fullFileName  = UUID.randomUUID().toString() + baseObjName;
+                File outFile = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOCUMENTS), fullFileName);
+                String fullPath = outFile.getAbsolutePath();
+                                URL url = new URL(REQUEST_PATH);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+                //lets us read from the connection
+                conn.setDoInput(true);
+                //makes it POST
+                                HttpPost httpPost = new HttpPost(REQUEST_PATH);
+                String body = "{\"near\":"+params[0]+",\"far\":"+params[1]+",\"imageData\":\""+params[2]+"\"}";
+                conn.setDoOutput(true);
+                conn.setInstanceFollowRedirects(false);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type","application/json");
+                conn.setRequestProperty("charset","utf-8");
+                conn.setRequestProperty("Content-Length",Integer.toString(body.getBytes("UTF-8").length));
+                conn.setConnectTimeout(20000);
+                DataOutputStream dataOutputStream = new DataOutputStream(conn.getOutputStream());
+                BufferedInputStream reader = new BufferedInputStream(new ByteArrayInputStream(body.getBytes()));
+                byte[] buf = new byte[1024];
+                for (int nChunk = reader.read(buf); nChunk != -1; nChunk = reader.read(buf)) {
+                    dataOutputStream.write(buf,0,nChunk);
+                }
+                //dataOutputStream.write(body.getBytes("UTF-8"));
+                dataOutputStream.flush();
+                conn.connect();
+              //  dataOutputStream.close();
+                Thread.sleep(10000);
+//                HttpClient httpClient = new DefaultHttpClient();
+//                HttpPost request = new HttpPost(REQUEST_PATH);
+//                JSONObject jsonHolder = new JSONObject();
+//                jsonHolder.put("near",params[0]);
+//                jsonHolder.put("far",params[1]);
+//                jsonHolder.put("imageData",params[2]);
+                //List<NameValuePair> postParameters = new ArrayList<NameValuePair>();
+                //postParameters.add(new BasicNameValuePair("name", params[0]));
+
+                //UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(
+                        //postParameters);
+//                StringEntity se = new StringEntity(jsonHolder.toString());
+//                request.setHeader("Content-Type","application/json");
+//                request.setEntity(se);
+//                response = httpClient.execute(request);
+                //result="got it";
+                reader = new BufferedInputStream(conn.getInputStream());
+                FileOutputStream testFileOut = new FileOutputStream(outFile);
+                buf = new byte[1024];
+                for (int nChunk = reader.read(buf); nChunk != -1; nChunk = reader.read(buf)) {
+                    testFileOut.write(buf,0,nChunk);
+                }
+                testFileOut.close();
+                return response;
+            } catch(Exception e) {
+                // Do something about exceptions
+                //result = e.getMessage();
+            }
+            return  response;
+        }
+
+        protected HttpResponse onPostExecute(String page)
+        {
+            Log.d("Fuck","this shit");
+            return null;
         }
     }
     /**

@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -47,9 +48,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import edu.ncf.miriam_zeitz12.depthmap.display3d.Display3dFragment;
+
 
 public class MeshActivity extends ActionBarActivity {
 
+    private String fullPath;
     private Uri imageUri;
     private static final String baseObjName = "_3d_model.obj";
     public static final String EMAIL_IMAGE_URI = "com.example.miriamzeitz.IMAGE_PROCESSED";
@@ -111,7 +115,7 @@ public class MeshActivity extends ActionBarActivity {
         String fullFileName  = UUID.randomUUID().toString() + baseObjName;
         File outFile = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOCUMENTS), fullFileName);
-        String fullPath = outFile.getAbsolutePath();
+         fullPath = outFile.getAbsolutePath();
         FileOutputStream testFileOut = null;
         try {
             testFileOut = new FileOutputStream(outFile);
@@ -120,17 +124,27 @@ public class MeshActivity extends ActionBarActivity {
                 testFileOut.write(buf,0,nChunk);
             }
             testFileOut.close();
-
+            displayMesh();
             //and now email this thing
-            Intent emailIntent = new Intent(this,EmailFileActivity.class);
-            emailIntent.putExtra(EMAIL_IMAGE_URI,fullPath);
-            startActivity(emailIntent);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
+    private void displayMesh(){
+        getFragmentManager().beginTransaction()
+                .replace(R.id.container, Display3dFragment.newInstance(fullPath))
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void emailFile(View view){
+        Intent emailIntent = new Intent(this,EmailFileActivity.class);
+        emailIntent.putExtra(EMAIL_IMAGE_URI,fullPath);
+        startActivity(emailIntent);
+    }
 
     private class dataTask extends AsyncTask<Map<String, Map<String,String>>, Void, String> {
 

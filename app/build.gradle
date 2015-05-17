@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -23,9 +24,13 @@ android {
     }
 }
 
+repositories{
+    mavenCentral()
+}
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'org.rajawali3d:rajawali:1.0.232-SNAPSHOT@aar'
     compile files('libs/xmpcore-5.1.2.jar')
     compile files('libs/commons-io-2.4.jar')
     compile('org.apache.httpcomponents:httpmime:4.3.5') {

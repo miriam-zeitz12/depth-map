@@ -18,10 +18,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -30,12 +34,17 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -56,14 +65,9 @@ public class MeshActivity extends ActionBarActivity {
         try {
             //first check if we can write the OBJ
             if (isExternalStorageWritable()) {
-                StrictMode.ThreadPolicy policy =
-                        new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                StrictMode.setThreadPolicy(policy);
                 //we take a random UUID to generate the file name we need
-                String fullFileName  = UUID.randomUUID().toString() + baseObjName;
-                File outFile = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOCUMENTS), fullFileName);
-                String fullPath = outFile.getAbsolutePath();
+
+                //
                 ContentResolver resolver = context.getContentResolver();
                 DataExtractor extractor = new DataExtractor((resolver.openInputStream(imageUri)));
                 byte[] data = extractor.getDepthData();
@@ -73,30 +77,8 @@ public class MeshActivity extends ActionBarActivity {
 
                 String near = Double.toString(extractor.getNear());
                 String far = Double.toString(extractor.getFar());
-                //open connection using java.net because apache sucks
-                String body = "{\"near\":"+near+",\"far\":"+far+",\"imageData\":\""+new String(data,"UTF-8")+"\"}";
-//                HttpClient httpClient = new DefaultHttpClient();
-//                httpPost.setEntity(new ByteArrayEntity(body.getBytes("UTF-8")));
-//                HttpResponse response = httpClient.execute(httpPost);
-//                InputStream reader = response.getEntity().getContent();
-                URL url = new URL(REQUEST_PATH);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                //lets us read from the connection
-                conn.setDoInput(true);
-                //makes it POST
-                                HttpPost httpPost = new HttpPost(REQUEST_PATH);
-//
-                conn.setDoOutput(true);
-                conn.setInstanceFollowRedirects(false);
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type","application/json");
-                conn.setRequestProperty("charset","utf-8");
-                conn.setRequestProperty("Content-Length",Integer.toString(body.getBytes("UTF-8").length));
-                conn.setConnectTimeout(20000);
-                DataOutputStream dataOutputStream = new DataOutputStream(conn.getOutputStream());
-                dataOutputStream.write(body.getBytes("UTF-8"));
-                dataOutputStream.flush();
-                dataOutputStream.close();
+                ImageDataMap imageDataMap = new ImageDataMap(near, far, data);
+
                 //make JSON using a JSONObject
 
 //                JSONObject jsonHolder = new JSONObject();
@@ -112,18 +94,8 @@ public class MeshActivity extends ActionBarActivity {
 //                //IOUtils.copy(new ByteArrayInputStream(toWrite), writer);
 //                writer.write(toWrite,0,toWrite.length);
 //                writer.flush();
-                InputStream reader = new BufferedInputStream(conn.getInputStream());
-                FileOutputStream testFileOut = new FileOutputStream(outFile);
-                byte[] buf = new byte[1024];
-                for (int nChunk = reader.read(buf); nChunk != -1; nChunk = reader.read(buf)) {
-                    testFileOut.write(buf,0,nChunk);
-                }
-                testFileOut.close();
 
-                //and now email this thing
-                Intent emailIntent = new Intent(this,EmailFileActivity.class);
-                emailIntent.putExtra(EMAIL_IMAGE_URI,fullPath);
-                startActivity(emailIntent);
+
             } else {
                 displayNoAccessDialog();
             }
@@ -135,61 +107,71 @@ public class MeshActivity extends ActionBarActivity {
         }
     }
 
-//    public class HttpTest extends AsyncTask<String, HttpResponse, HttpResponse>
-//    {
-//
-//        @Override
-//        protected HttpResponse doInBackground(String... params)
-//        {
-//            BufferedReader inBuffer = null;
-//            try {
-//                String fullFileName  = UUID.randomUUID().toString() + baseObjName;
-//                File outFile = new File(Environment.getExternalStoragePublicDirectory(
-//                        Environment.DIRECTORY_DOCUMENTS), fullFileName);
-//                String fullPath = outFile.getAbsolutePath();
-//                HttpClient httpClient = new DefaultHttpClient();
-//                HttpPost request = new HttpPost(REQUEST_PATH);
-//                JSONObject jsonHolder = new JSONObject();
-//                jsonHolder.put("near",params[0]);
-//                jsonHolder.put("far",params[1]);
-//                jsonHolder.put("imageData",params[2]);
-//                //List<NameValuePair> postParameters = new ArrayList<NameValuePair>();
-//                //postParameters.add(new BasicNameValuePair("name", params[0]));
-//
-//                //UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(
-//                        //postParameters);
-//                StringEntity se = new StringEntity(jsonHolder.toString());
-//                request.setHeader("Content-Type","application/json");
-//                request.setEntity(se);
-//                HttpResponse response = httpClient.execute(request);
-//                //result="got it";
-//                BufferedInputStream inputStream = new BufferedInputStream(response.getEntity().getContent());
-//
-//                return response;
-//            } catch(Exception e) {
-//                // Do something about exceptions
-//                //result = e.getMessage();
-//            } finally {
-//                if (inBuffer != null) {
-//                    try {
-//                        inBuffer.close();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//            return  result;
-//        }
-//
-//        protected HttpResponse onPostExecute(String page)
-//        {
-//
-//        }
-//    }
-    /**
-     * Displays an alert dialog for when we can't get the file for some reason
-     * or can't close the input stream for some reason.
-     */
+    private void handleResponse(InputStream responseIn){
+        String fullFileName  = UUID.randomUUID().toString() + baseObjName;
+        File outFile = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS), fullFileName);
+        String fullPath = outFile.getAbsolutePath();
+        FileOutputStream testFileOut = null;
+        try {
+            testFileOut = new FileOutputStream(outFile);
+            byte[] buf = new byte[1024];
+            for (int nChunk = responseIn.read(buf); nChunk != -1; nChunk = responseIn.read(buf)) {
+                testFileOut.write(buf,0,nChunk);
+            }
+            testFileOut.close();
+
+            //and now email this thing
+            Intent emailIntent = new Intent(this,EmailFileActivity.class);
+            emailIntent.putExtra(EMAIL_IMAGE_URI,fullPath);
+            startActivity(emailIntent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    private class dataTask extends AsyncTask<Map<String, Map<String,String>>, Void, String> {
+
+
+        @Override
+        protected String doInBackground(Map<String, Map<String, String>>... params) {
+            return null;
+        }
+
+        public void postData(String url, Map<String, String> data) {
+
+            JSONObject json = new JSONObject(data);
+            HttpPost httpPost = new HttpPost(url);
+            List<NameValuePair> postData = new ArrayList<>();
+            postData.add(new BasicNameValuePair("data[]", json.toString()));
+            HttpClient client = HttpClientBuilder.create().build();
+            try {
+                StringEntity entity = new StringEntity(json.toString());
+
+
+                httpPost.setEntity(entity);
+                httpPost.setHeader("Content-Type", "application/json");
+                httpPost.setHeader("charset", "utf-8");
+                httpPost.setHeader("Content-Length", Integer.toString(json.toString().getBytes("UTF-8").length));
+                HttpResponse response = client.execute(httpPost);
+                if (response != null) {
+                    InputStream in = new BufferedInputStream(response.getEntity().getContent()); //Get the data in the entity
+                    handleResponse(in);
+                }
+                else {
+                    displayNoAccessDialog();
+                }
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     private void displayBadFileDialog() {
         final Activity us = this;
         new AlertDialog.Builder(this)

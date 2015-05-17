@@ -171,7 +171,7 @@ public class DataExtractor
         return null;
     }
 
-    public static void main(String[] args) throws Exception
+    /*public static void main(String[] args) throws Exception
     {
         DataExtractor extract = new DataExtractor(new FileInputStream(new File("IMG_20150213_135742.jpg")));
         System.out.println(extract.getNear());
@@ -192,5 +192,5 @@ public class DataExtractor
             FileOutputStream out = new FileOutputStream(new File("out.png"));
             copy(in, out,1024);
         }
-    }
+    }*/
 }

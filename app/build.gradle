@@ -28,4 +28,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile files('libs/xmpcore-5.1.2.jar')
     compile files('libs/commons-io-2.4.jar')
+    compile('org.apache.httpcomponents:httpmime:4.3.5') {
+        exclude module: 'httpclient'
+    }
+    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
 }

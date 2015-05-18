@@ -2,6 +2,7 @@ package edu.ncf.miriam_zeitz12.depthmap;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,6 +13,7 @@ import android.view.View;
 public class MainActivity extends ActionBarActivity {
 
     private static final int ACTIVITY_SELECT_IMAGE = 100;
+    private static final int ACTIVITY_CAPTURE_IMAGE = 101;
 
     public static final String EXTRA_IMAGE_URI = "com.example.miriamzeitz.IMAGE_SELECTED";
 
@@ -60,7 +62,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent imageChosenIntent) {
         super.onActivityResult(requestCode, resultCode, imageChosenIntent);
 
-        if (requestCode == ACTIVITY_SELECT_IMAGE) {
+        if (requestCode == ACTIVITY_SELECT_IMAGE
+                || requestCode == ACTIVITY_CAPTURE_IMAGE) {
             Uri chosenImage = imageChosenIntent.getData();
             startMeshActivity(chosenImage);
         }
@@ -78,7 +81,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void getPhotoFromCamera(View view) {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        
+        startActivityForResult(intent, ACTIVITY_CAPTURE_IMAGE);
     }
 }

@@ -43,9 +43,4 @@ public class HelpScreenActivity extends ActionBarActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
-
-    public void moreInfo(View view) {
-        Intent intent = new Intent(this, MoreInfoActivity.class);
-        startActivity(intent);
-    }
 }

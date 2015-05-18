@@ -3,27 +3,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="30px"
     tools:context="edu.ncf.miriam_zeitz12.depthmap.HelpScreenActivity">
 
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
-
         <TextView
-            android:text="@string/help_text"
+            android:text="@string/help_header_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/helpScreenTextView"
+            android:id="@+id/help_header_options"
             android:textAlignment="center"
-            android:layout_alignParentTop="true"
+            android:textSize="22sp"
             android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true" />
+        <TextView
+            android:text="@string/help_text_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/help_text_options"
+            android:textAlignment="center"
             android:textSize="20sp"
-                />
-    </ScrollView>
+            android:layout_below="@+id/help_header_options"
+            android:layout_alignParentStart="true" />
+        <TextView
+            android:text="@string/help_header_whathappens"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/help_header_whathappens"
+            android:textAlignment="center"
+            android:textSize="22sp"
+            android:layout_below="@+id/help_text_options"
+            android:layout_centerHorizontal="true" />
+        <TextView
+            android:text="@string/help_text_whathappens"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/help_text_whathappens"
+            android:textAlignment="center"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/help_header_whathappens"
+            android:textSize="20sp"
+            />
+
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -31,21 +51,9 @@
         android:layout_height="wrap_content"
         android:text="@string/go_back_button"
         android:id="@+id/help_back_button"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
         android:onClick="goBack"
-        />
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="@string/more_info_button"
-        android:id="@+id/more_info_button"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="moreInfo"
-        />
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

@@ -5,17 +5,19 @@
     <string name="select_button">Select a Photo</string>
     <string name="help_button">\?</string>
 
-    <string name="help_header_options">Selecting a Picture\n</string>
+    <string name="help_header_options">Selecting a Picture</string>
     <string name="help_text_options">This application allows you to get pictures one of two ways.
     You can take a picture, where the application will switch to your phone\'s camera application and you take a picture
-    in lens blur mode. You can also select a picture that was taken in lens blur mode from your gallery. \n</string>
+    in lens blur mode. You can also select a picture that was taken in lens blur mode from your gallery.</string>
     <string name ="help_header_whathappens">What Happens Next</string>
-    <string name ="help_text_whathappens"></string>
+    <string name ="help_text_whathappens">The applications sends information from the picture to a server to be processed.
+    The server sends back 3D printable file that is a representation of the picture taken.  You can send that file to an
+    email of your choice.</string>
     <string name="go_back_button">Go Back</string>
     <string name="more_info_button">More Info</string>
 
     <string name="enter_email">Enter Email</string>
-    <string name="explain_email">You now have a 3D-printable file! \n
+    <string name="explain_email">You now have a 3D-printable file!\n
     Enter your email so it can be sent to you! \n</string>
     <string name="send_email_button">Send</string>
 

@@ -47,39 +47,39 @@ public class MeshCreator {
      * @throws IOException - if there's issues reading the depth map
      */
     public MeshCreator(Uri inFilePath, Context context) throws IOException{
-        //first get the data
-        ContentResolver resolver = context.getContentResolver();
-        DataExtractor extract = new DataExtractor(resolver.openInputStream(inFilePath));
-        byte[] data = extract.getDepthData();
-        if (data == null) {
-            throw new IllegalArgumentException("Did not provide an image with depth map information.");
-        }
-        near = extract.getNear();
-        far = extract.getFar();
-        Log.d("Found data",Double.toString(near)+" "+Double.toString(far));
-        Log.d("Base64:",new String(data));
-        //now make a Bitmap out of it, read stream so we don't have to
-        //care about indexing directly
-        Log.d("Length of data:",Integer.toString(data.length));
-        Log.d("First byte in data:",Byte.toString(data[0]));
-        Log.d("Last byte in data:",Byte.toString(data[data.length-1]));
-        String fullFileName = "out.png";
-        String textFileName = "OUT-TEMP.TXT";
-        File outFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), fullFileName);
-        String outPath = outFile.getAbsolutePath();
-        byte[] imgData = Base64.decode(data);
-        //ByteArrayInputStream in = new ByteArrayInputStream(imgData);
-        //FileOutputStream out = new FileOutputStream(outPath);
-        //IOUtils.copy(in,out);
-        //FlushedInputStream is = new FlushedInputStream(new ByteArrayInputStream(imgData));
-        //FileInputStream newFile = new FileInputStream(outFile);
-//        DataExtractor.copy(is, out,1024);
-//        out.close();
-        FileInputStream in = new FileInputStream(outPath);
-        //in.reset();
-        storeImg = BitmapFactory.decodeStream(in);
-        Log.d("Image is null:", Boolean.toString(storeImg == null));
+//        //first get the data
+//        ContentResolver resolver = context.getContentResolver();
+//        DataExtractor extract = new DataExtractor(resolver.openInputStream(inFilePath));
+//        byte[] data = extract.getDepthData();
+//        if (data == null) {
+//            throw new IllegalArgumentException("Did not provide an image with depth map information.");
+//        }
+//        near = extract.getNear();
+//        far = extract.getFar();
+//        Log.d("Found data",Double.toString(near)+" "+Double.toString(far));
+//        Log.d("Base64:",new String(data));
+//        //now make a Bitmap out of it, read stream so we don't have to
+//        //care about indexing directly
+//        Log.d("Length of data:",Integer.toString(data.length));
+//        Log.d("First byte in data:",Byte.toString(data[0]));
+//        Log.d("Last byte in data:",Byte.toString(data[data.length-1]));
+//        String fullFileName = "out.png";
+//        String textFileName = "OUT-TEMP.TXT";
+//        File outFile = new File(Environment.getExternalStoragePublicDirectory(
+//                Environment.DIRECTORY_DOCUMENTS), fullFileName);
+//        String outPath = outFile.getAbsolutePath();
+//        byte[] imgData = Base64.decode(data);
+//        //ByteArrayInputStream in = new ByteArrayInputStream(imgData);
+//        //FileOutputStream out = new FileOutputStream(outPath);
+//        //IOUtils.copy(in,out);
+//        //FlushedInputStream is = new FlushedInputStream(new ByteArrayInputStream(imgData));
+//        //FileInputStream newFile = new FileInputStream(outFile);
+////        DataExtractor.copy(is, out,1024);
+////        out.close();
+//        FileInputStream in = new FileInputStream(outPath);
+//        //in.reset();
+//        storeImg = BitmapFactory.decodeStream(in);
+//        Log.d("Image is null:", Boolean.toString(storeImg == null));
     }
 
     /**

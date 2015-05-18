@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16px"
+    android:layout_margin="30px"
     tools:context="edu.ncf.miriam_zeitz12.depthmap.EmailFileActivity">
 
     <TextView
@@ -35,5 +35,15 @@
         android:onClick="sendEmail"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Upload Another Picture"
+        android:id="@+id/button2"
+        android:layout_below="@+id/send_email_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="65dp"
+        android:onClick="goBackToMain" />
 
 </RelativeLayout>

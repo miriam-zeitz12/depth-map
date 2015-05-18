@@ -3,6 +3,7 @@
 
     <string name="camera_button">Take a Photo</string>
     <string name="select_button">Select a Photo</string>
+    <string name="view_saved_text">View Saved Model</string>
     <string name="help_button">\?</string>
 
     <string name="help_text">Help Information Goes Here</string>

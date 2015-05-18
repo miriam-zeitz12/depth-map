@@ -67,6 +67,8 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+
+
     public void startMeshActivity(Uri imageUri) {
 
 

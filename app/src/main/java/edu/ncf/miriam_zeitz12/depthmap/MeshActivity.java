@@ -44,6 +44,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -82,6 +83,8 @@ public class MeshActivity extends ActionBarActivity {
                 String near = Double.toString(extractor.getNear());
                 String far = Double.toString(extractor.getFar());
                 ImageDataMap imageDataMap = new ImageDataMap(near, far, data);
+                Map<String, Map<String, String>> executeData = new HashMap<String, Map<String, String>>();
+                executeData.put(REQUEST_PATH, imageDataMap.getDataMap());
 
                 //make JSON using a JSONObject
 
@@ -99,7 +102,8 @@ public class MeshActivity extends ActionBarActivity {
 //                writer.write(toWrite,0,toWrite.length);
 //                writer.flush();
 
-
+            DataTask dataTask = new DataTask();
+                dataTask.execute(executeData);
             } else {
                 displayNoAccessDialog();
             }
@@ -146,7 +150,7 @@ public class MeshActivity extends ActionBarActivity {
         startActivity(emailIntent);
     }
 
-    private class dataTask extends AsyncTask<Map<String, Map<String,String>>, Void, String> {
+    private class DataTask extends AsyncTask<Map<String, Map<String,String>>, Void, String> {
 
 
         @Override

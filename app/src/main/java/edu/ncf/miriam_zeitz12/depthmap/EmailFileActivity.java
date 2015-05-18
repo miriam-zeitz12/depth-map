@@ -79,14 +79,14 @@ public class EmailFileActivity extends ActionBarActivity {
         if (isValidEmail(email)) {
             Intent emailIntent = new Intent(Intent.ACTION_SEND);
             emailIntent.setType(HTTP.PLAIN_TEXT_TYPE);
-            emailIntent.putExtra(Intent.EXTRA_EMAIL, email); // recipients
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{email}); // recipients
             emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your 3D Printable File");
             emailIntent.putExtra(Intent.EXTRA_TEXT, "Hello! \n\n A request has been made to send a "
             + "3D-printable file to this E-Mail address from an application on a mobile phone.  "
             + "Attached is the file requested. Enjoy!");
             emailIntent.putExtra(Intent.EXTRA_STREAM, filePath);
 
-            startActivity(emailIntent);
+            startActivity(Intent.createChooser(emailIntent,"Send mail using..."));
         } else {
             Toast.makeText(this, "Not a valid email format try again.", Toast.LENGTH_LONG).show();
         }

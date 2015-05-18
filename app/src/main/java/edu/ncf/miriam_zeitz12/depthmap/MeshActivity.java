@@ -155,7 +155,14 @@ public class MeshActivity extends ActionBarActivity {
 
         @Override
         protected String doInBackground(Map<String, Map<String, String>>... params) {
-            return null;
+
+            for (Map<String, Map<String, String>> p:params){
+                for (String url:p.keySet()){
+                    postData(url, p.get(url));
+                }
+
+            }
+            return "success";
         }
 
         public void postData(String url, Map<String, String> data) {

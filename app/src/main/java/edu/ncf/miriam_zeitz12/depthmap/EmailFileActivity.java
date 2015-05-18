@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import org.apache.http.protocol.HTTP;
 
+import java.io.File;
+
 
 public class EmailFileActivity extends ActionBarActivity {
 
@@ -20,7 +22,9 @@ public class EmailFileActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        filePath = Uri.parse(intent.getStringExtra(MeshActivity.EMAIL_IMAGE_URI));
+        String f = intent.getStringExtra(MeshActivity.EMAIL_IMAGE_URI);
+        File n = new File(f);
+        filePath = Uri.fromFile(n);
         setContentView(R.layout.activity_email_file);
     }
 

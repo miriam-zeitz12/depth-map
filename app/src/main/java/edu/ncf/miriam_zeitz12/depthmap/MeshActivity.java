@@ -17,6 +17,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.adobe.xmp.XMPException;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -64,17 +67,17 @@ public class MeshActivity extends ActionBarActivity {
                 File outFile = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOCUMENTS), fullFileName);
                 String fullPath = outFile.getAbsolutePath();
+                String newFullPath = fullPath.replace("obj","txt");
                 ContentResolver resolver = context.getContentResolver();
-                DataExtractor extractor = new DataExtractor((resolver.openInputStream(imageUri)));
-                byte[] data = extractor.getDepthData();
-                if (data == null) {
-                    displayBadFileDialog();
-                }
-
-                String near = Double.toString(extractor.getNear());
-                String far = Double.toString(extractor.getFar());
-                //open connection using java.net because apache sucks
-                String body = "{\"near\":"+near+",\"far\":"+far+",\"imageData\":\""+new String(data,"UTF-8")+"\"}";
+                InputStream inImage = (resolver.openInputStream(imageUri));
+//
+//                FileOutputStream outstr = new FileOutputStream(newFullPath);
+//                outstr.write(data.getBytes("UTF-8"));
+//                outstr.close();
+//                double near = extractor.getNear();
+//                double far = extractor.getFar();
+//                //open connection using java.net because apache sucks
+//                String body = "{\"near\":"+near+",\"far\":"+far+",\"imageData\":\""+data+"\"}";
 //                HttpClient httpClient = new DefaultHttpClient();
 //                httpPost.setEntity(new ByteArrayEntity(body.getBytes("UTF-8")));
 //                HttpResponse response = httpClient.execute(httpPost);
@@ -91,12 +94,16 @@ public class MeshActivity extends ActionBarActivity {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type","application/json");
                 conn.setRequestProperty("charset","utf-8");
-                conn.setRequestProperty("Content-Length",Integer.toString(body.getBytes("UTF-8").length));
+                //conn.setRequestProperty("Content-Length",Integer.toString(body.getBytes("UTF-8").length));
                 conn.setConnectTimeout(20000);
                 DataOutputStream dataOutputStream = new DataOutputStream(conn.getOutputStream());
-                dataOutputStream.write(body.getBytes("UTF-8"));
+                IOUtils.copy(inImage, dataOutputStream);
+                //dataOutputStream.write(body.getBytes("UTF-8"));
                 dataOutputStream.flush();
                 dataOutputStream.close();
+                Log.d("Status",Integer.toString(conn.getResponseCode()));
+                //conn.setDoOutput(false);
+
                 //make JSON using a JSONObject
 
 //                JSONObject jsonHolder = new JSONObject();

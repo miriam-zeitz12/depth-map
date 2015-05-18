@@ -91,4 +91,9 @@ public class EmailFileActivity extends ActionBarActivity {
             Toast.makeText(this, "Not a valid email format try again.", Toast.LENGTH_LONG).show();
         }
     }
+
+    public void goBackToMain(View view) {
+        Intent backIntent = new Intent(this,MainActivity.class);
+        startActivity(backIntent);
+    }
 }

@@ -5,7 +5,12 @@
     <string name="select_button">Select a Photo</string>
     <string name="help_button">\?</string>
 
-    <string name="help_text">Help Information Goes Here</string>
+    <string name="help_header_options">Selecting a Picture\n</string>
+    <string name="help_text_options">This application allows you to get pictures one of two ways.
+    You can take a picture, where the application will switch to your phone\'s camera application and you take a picture
+    in lens blur mode. You can also select a picture that was taken in lens blur mode from your gallery. \n</string>
+    <string name ="help_header_whathappens">What Happens Next</string>
+    <string name ="help_text_whathappens"></string>
     <string name="go_back_button">Go Back</string>
     <string name="more_info_button">More Info</string>
 
